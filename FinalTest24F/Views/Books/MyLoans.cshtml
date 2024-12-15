@@ -1,0 +1,54 @@
+@model IEnumerable<FinalTest24F.Models.BookLoan>
+@using Microsoft.AspNetCore.Identity
+@using FinalTest24F.Services
+@inject IBook _librarian
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+  ViewData["Title"] = "My Loans";
+  bool showActive = (bool)(ViewData["ShowActiveOnly"] ?? true);
+}
+
+<h2>My Book Loans</h2>
+
+<div class="mb-3">
+  <a asp-action="MyLoans" asp-route-showActive="true"
+    class="btn @(showActive ? "btn-primary" : "btn-outline-primary") me-2">Active</a>
+  <a asp-action="MyLoans" asp-route-showActive="false"
+    class="btn @(!showActive ? "btn-primary" : "btn-outline-primary")">All Loans</a>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Author</th>
+      <th>Due Date</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var loan in Model)
+    {
+      var isOverdue = loan.EndDate < DateTime.Now && loan.Active;
+      <tr>
+        <td>@loan.Book.Title</td>
+        <td>@loan.Book.Author</td>
+        <td>@loan.EndDate.ToString("MM/dd/yyyy")</td>
+        <td>@(loan.Active ? "Active" : "Returned")</td>
+        <td>
+          @if (loan.Active)
+          {
+            <form asp-action="Return" asp-route-id="@loan.ID" method="post" style="display: inline;">
+              <button type="submit" class="btn btn-link @(isOverdue ? "text-danger" : "text-primary")"
+                onclick="return confirm('Are you sure you want to return this book?');">
+                Return
+              </button>
+            </form>
+          }
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

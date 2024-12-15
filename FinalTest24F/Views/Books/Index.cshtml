@@ -1,0 +1,70 @@
+@model IEnumerable<FinalTest24F.Models.Book>
+@using Microsoft.AspNetCore.Identity
+@using FinalTest24F.Services
+@inject IBook _librarian
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+  ViewData["Title"] = "Index";
+  var sortOrder = Context.Request.Query["sortOrder"].ToString();
+}
+
+<h1>Index</h1>
+
+<p>
+  <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        @Html.DisplayNameFor(model => model.ISBN)
+      </th>
+      <th>
+        @Html.DisplayNameFor(model => model.Title)
+      </th>
+      <th>
+        @Html.DisplayNameFor(model => model.Author)
+      </th>
+      <th>
+        @Html.DisplayNameFor(model => model.Count)
+      </th>
+      <th>
+        Available On
+      </th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var item in Model)
+    {
+      <tr>
+        <td>
+          @Html.DisplayFor(modelItem => item.ISBN)
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Author)
+        </td>
+        <td>
+          @Html.DisplayFor(modelItem => item.Count)
+        </td>
+        <td>
+          @_librarian.BookAvailableOn(item.ID)
+        </td>
+        <td>
+          <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+          <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+          <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+          @if (SignInManager.IsSignedIn(User) && _librarian.AvailableCopies(item.ID) > 0)
+          {
+            <text>| </text>
+            <a asp-action="Borrow" asp-route-id="@item.ID">Borrow</a>
+          }
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
